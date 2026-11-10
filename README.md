@@ -19,7 +19,7 @@ It can be used either from a PyQt desktop UI or from the command line.
 | Feature | Description | Status |
 |---|---|---|
 | **Parametric layout generator** | Generates transmon qubits (`TransmonPocket`), meandered readout resonators (`RouteMeander`) and launch pads from a YAML/JSON config | ⬜ Planned |
-| **Design-rule verification (DRC)** | Checks for minimum spacing, overlapping components, out-of-bounds components and resonator length limits | ⬜ Planned |
+| **Design-rule verification (DRC) engine in Rust** | A fast geometry-checking core written in Rust and called from Python through PyO3 bindings. It checks for minimum spacing, overlapping components, out-of-bounds components and resonator length limits | ⬜ Planned |
 | **GDS export** | Writes the final layout to `.gds` using Qiskit Metal's GDS renderer | ⬜ Planned |
 | **PyQt desktop UI** | A form for chip parameters with *Generate*, *Run DRC* and *Export GDS* buttons, plus a list of rule violations | ⬜ Planned |
 | **CLI** | `qlayout generate config.yaml --out chip.gds` for scripted and batch runs | ⬜ Planned |
@@ -39,7 +39,7 @@ config.yaml │  CLI / PyQt  │      │  Layout builder │   Qiskit Metal
                                            │
                                   ┌────────▼────────┐
                                   │  DRC engine     │ ─► violations report
-                                  │  (rule plugins) │
+                                  │  (Rust + PyO3)  │
                                   └────────┬────────┘
                                            │ pass
                                   ┌────────▼────────┐
@@ -54,8 +54,10 @@ qlayout/
   config.py        # load and validate YAML/JSON chip parameters
   builder.py       # create qubits, resonators and pads in a Qiskit Metal design
   drc/
-    rules.py       # spacing, overlap, bounds and length rules
-    engine.py      # run the rules and collect violations
+    engine.py      # Python wrapper: run the rules and collect violations
+drc_core/          # Rust crate (PyO3): spacing, overlap, bounds and length rules
+  Cargo.toml
+  src/lib.rs
   export.py        # GDS export
   cli.py           # command-line entry point
   ui/app.py        # PyQt desktop front end
@@ -106,7 +108,7 @@ pytest
 - [ ] Scaffold the package, config loader and the first sample config
 - [ ] Layout builder: qubits and launch pads
 - [ ] Layout builder: meandered readout resonators
-- [ ] DRC rules: spacing, overlap, bounds and length, each with pytest tests
+- [ ] Rust DRC core (PyO3 + maturin): spacing, overlap, bounds and length rules, with `cargo test` and pytest tests
 - [ ] GDS export
 - [ ] CLI
 - [ ] PyQt UI
@@ -115,7 +117,7 @@ pytest
 
 ## Tech stack
 
-Python · Qiskit Metal · PyQt · pytest · GitHub Actions · Linux · git
+Python · Rust (PyO3, maturin) · Qiskit Metal · PyQt · pytest · GitHub Actions · Linux · git
 
 ## Author
 
